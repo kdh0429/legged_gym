@@ -54,3 +54,27 @@ def torch_rand_sqrt_float(lower, upper, shape, device):
     r = torch.where(r<0., -torch.sqrt(-r), torch.sqrt(r))
     r =  (r + 1.) / 2.
     return (upper - lower) * r + lower
+
+@torch.jit.script
+def cubic(time, time_0, time_f, x_0, x_f, x_dot_0, x_dot_f):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, float, float) -> Tensor
+    x_t = x_0.clone()
+    after = time > time_f
+    intermediate = (time_0 <= time) & (time <= time_f)
+    elapsed_time = time - time_0
+    total_time = time_f - time_0
+    total_time2 = total_time * total_time
+    total_time3 = total_time2 * total_time
+    total_x    = x_f - x_0
+    cubic = x_0 + x_dot_0 * elapsed_time \
+        + (3 * total_x / total_time2 \
+        - 2 * x_dot_0 / total_time \
+        - x_dot_f / total_time) \
+        * elapsed_time * elapsed_time \
+        + (-2 * total_x / total_time3 + \
+        (x_dot_0 + x_dot_f) / total_time2) \
+        * elapsed_time * elapsed_time * elapsed_time
+    x_t = torch.where(after, x_f, x_t)
+    x_t = torch.where(intermediate, cubic, x_t)
+
+    return x_t   

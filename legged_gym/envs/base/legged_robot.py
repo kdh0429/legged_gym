@@ -548,6 +548,7 @@ class LeggedRobot(BaseTask):
         # remove zero scales + multiply non-zero ones by dt
         for key in list(self.reward_scales.keys()):
             scale = self.reward_scales[key]
+            print(f"Key: {key}, Scale: {self.reward_scales[key]}")
             if scale==0:
                 self.reward_scales.pop(key) 
             else:
