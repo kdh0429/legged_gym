@@ -34,7 +34,7 @@ from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 
 class TOCABIRoughCfg( LeggedRobotCfg ):
     class env( LeggedRobotCfg.env ):
-        num_envs = 128
+        num_envs = 4096
         num_single_step_obs = 37
         num_obs_hist = 10
         num_obs_skip = 2
@@ -229,18 +229,18 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
         
     class algorithm( LeggedRobotCfgPPO.algorithm):
         # training params
-        value_loss_coef = 1.0
+        value_loss_coef = 0.5
         use_clipped_value_loss = True
         clip_param = 0.2
-        entropy_coef = 0.01
+        entropy_coef = 0.0
         num_learning_epochs = 5
-        num_mini_batches = 128 # mini batch size = num_envs*nsteps / nminibatches
+        num_mini_batches = 4096 # mini batch size = num_envs*nsteps / nminibatches
         learning_rate = 1.e-5 #5.e-4
         schedule = 'fixed' # could be adaptive, fixed
         gamma = 0.99
         lam = 0.95
         desired_kl = 0.01
-        max_grad_norm = 1.
+        max_grad_norm = 0.5
 
     class runner( LeggedRobotCfgPPO.runner ):
         policy_class_name = 'ActorCriticTocabi'

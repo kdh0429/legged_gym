@@ -49,7 +49,6 @@ from legged_gym.utils.math import cubic
 ### TODO ###
 # Randomization
 # Perturbation
-# Reward
 # Reset
 # Learning rate, noise curriculum
 
