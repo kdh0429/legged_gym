@@ -55,8 +55,8 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
         resampling_time = 8. # time before command are changed[s]
         heading_command = False # if true: compute ang vel command from heading error
         class ranges( LeggedRobotCfg.commands.ranges ):
-            lin_vel_x = [-0.8, 0.8] # min max [m/s]
-            lin_vel_y = [-0.8, 0.8]   # min max [m/s]
+            lin_vel_mag = [0.0, 0.8] # min max [m/s]
+            lin_vel_theta = [-3.141592, 3.141592]   # min max [m/s]
 
     class init_state( LeggedRobotCfg.init_state ):
         pos = [0.0, 0.0, 0.93] # x,y,z [m]
@@ -140,7 +140,6 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
                         64, 64, 64, 64, 23, 23, 10, 10,\
                         10, 10, \
                         64, 64, 64, 64, 23, 23, 10, 10]
-        # decimation: Number of control action updates @ sim DT per policy DT
         decimation = 2
 
     class asset( LeggedRobotCfg.asset ):
@@ -164,7 +163,7 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
             lin_vel_z = 0
             ang_vel_xy = 0
             orientation = 0
-            torques = 0.1
+            torques = 0
             dof_vel = 0
             dof_acc = 0
             base_height = 0
@@ -174,17 +173,32 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
             action_rate = 0
             stand_still = 0
 
-        only_positive_rewards = True # if true negative total rewards are clipped at zero (avoids early termination problems)
-        tracking_sigma = 0.25 # tracking reward = exp(-error^2/sigma)
-        soft_dof_pos_limit = 1. # percentage of urdf limits, values above this limit are penalized
-        soft_dof_vel_limit = 1.
-        soft_torque_limit = 1.
-        base_height_target = 1.
-        max_contact_force = 100. # forces above this value are penalized
+            base_orientation = 0.3/250.0
+            joint_angle_tracking = 0.35/250.0
+            vel_tracking = 0.3/250.0
+            contact_force_tracking = 0.1/250.0
+            foot_sequence_matching = 0.2/250.0
+            joint_velocity_regulation = 0.05/250.0 
+            joint_acceleration_regulation = 0.05/250.0
+            contact_force_regulation = 0.1/250.0
+            contact_force_diff_regulation = 0.2/250.0
+            contact_force_threshold_regulation = -0.2/250.0
+            contact_force_diff_threshold_regulation = -0.05/250.0
+            torque_regulation = 0.05/250.0
+            torque_diff_regulation = 0.6/250.0
+
+        only_positive_rewards = False # if true negative total rewards are clipped at zero (avoids early termination problems)
 
     class domain_rand( LeggedRobotCfg.domain_rand):
-        randomize_base_mass = True
-        added_mass_range = [-5., 5.]
+        randomize_friction = True
+        friction_range = [0.5, 1.25]
+        randomize_base_mass = False
+        push_robots = True
+        push_interval_s = 8
+        max_push_vel_xy = 1.
+        motor_constant_range = [0.8, 1.2]
+        min_delay = 0.002
+        max_delay = 0.015
 
     class normalization( LeggedRobotCfg.normalization ):
         clip_actuator_actions_high = 1.
@@ -204,7 +218,7 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
 
 class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
     class policy( LeggedRobotCfgPPO.policy):
-        init_noise_std = 1/20.0
+        init_noise_std = 1/10.0
         actor_hidden_dims = [256, 256]
         critic_hidden_dims = [256, 256]
         activation = 'relu' # can be elu, relu, selu, crelu, lrelu, tanh, sigmoid
@@ -220,19 +234,19 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
         clip_param = 0.2
         entropy_coef = 0.01
         num_learning_epochs = 5
-        num_mini_batches = 4 # mini batch size = num_envs*nsteps / nminibatches
-        learning_rate = 1.e-3 #5.e-4
-        schedule = 'adaptive' # could be adaptive, fixed
+        num_mini_batches = 128 # mini batch size = num_envs*nsteps / nminibatches
+        learning_rate = 1.e-5 #5.e-4
+        schedule = 'fixed' # could be adaptive, fixed
         gamma = 0.99
         lam = 0.95
         desired_kl = 0.01
         max_grad_norm = 1.
 
     class runner( LeggedRobotCfgPPO.runner ):
-        policy_class_name = 'ActorCritic'
+        policy_class_name = 'ActorCriticTocabi'
         algorithm_class_name = 'PPO'
-        num_steps_per_env = 24 # per iteration
-        max_iterations = 1500 # number of policy updates
+        num_steps_per_env = 128 # per iteration
+        max_iterations = 10000 # number of policy updates
 
         # logging
         save_interval = 50 # check for potential saves every this many iterations
