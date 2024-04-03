@@ -34,7 +34,7 @@ from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 
 class TOCABIRoughCfg( LeggedRobotCfg ):
     class env( LeggedRobotCfg.env ):
-        num_envs = 4096
+        num_envs = 128
         num_single_step_obs = 37
         num_obs_hist = 10
         num_obs_skip = 2
@@ -173,19 +173,19 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
             action_rate = 0
             stand_still = 0
 
-            base_orientation = 0.3/250.0
-            joint_angle_tracking = 0.35/250.0
-            vel_tracking = 0.3/250.0
-            contact_force_tracking = 0.1/250.0
-            foot_sequence_matching = 0.2/250.0
-            joint_velocity_regulation = 0.05/250.0 
-            joint_acceleration_regulation = 0.05/250.0
-            contact_force_regulation = 0.1/250.0
-            contact_force_diff_regulation = 0.2/250.0
-            contact_force_threshold_regulation = -0.2/250.0
-            contact_force_diff_threshold_regulation = -0.05/250.0
-            torque_regulation = 0.05/250.0
-            torque_diff_regulation = 0.6/250.0
+            base_orientation = 0.3*250.0
+            joint_angle_tracking = 0.35*250.0
+            vel_tracking = 0.3*250.0
+            contact_force_tracking = 0.1*250.0
+            foot_sequence_matching = 0.2*250.0
+            joint_velocity_regulation = 0.05*250.0 
+            joint_acceleration_regulation = 0.05*250.0
+            contact_force_regulation = 0.1*250.0
+            contact_force_diff_regulation = 0.2*250.0
+            contact_force_threshold_regulation = -0.2*250.0
+            contact_force_diff_threshold_regulation = -0.05*250.0
+            torque_regulation = 0.05*250.0
+            torque_diff_regulation = 0.6*250.0
 
         only_positive_rewards = False # if true negative total rewards are clipped at zero (avoids early termination problems)
 
@@ -234,7 +234,7 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
         clip_param = 0.2
         entropy_coef = 0.0
         num_learning_epochs = 5
-        num_mini_batches = 4096 # mini batch size = num_envs*nsteps / nminibatches
+        num_mini_batches = 128 # mini batch size = num_envs*nsteps / nminibatches
         learning_rate = 1.e-5 #5.e-4
         schedule = 'fixed' # could be adaptive, fixed
         gamma = 0.99
