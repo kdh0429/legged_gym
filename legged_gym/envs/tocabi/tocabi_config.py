@@ -230,12 +230,14 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
     class algorithm( LeggedRobotCfgPPO.algorithm):
         # training params
         value_loss_coef = 0.5
-        use_clipped_value_loss = True
+        use_clipped_value_loss = False
         clip_param = 0.2
         entropy_coef = 0.0
-        num_learning_epochs = 5
+        num_learning_epochs = 3
         num_mini_batches = 128 # mini batch size = num_envs*nsteps / nminibatches
         learning_rate = 1.e-5 #5.e-4
+        learning_rate_min = 2e-7
+        learning_rate_critic = 5e-4
         schedule = 'fixed' # could be adaptive, fixed
         gamma = 0.99
         lam = 0.95
@@ -244,7 +246,7 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
 
     class runner( LeggedRobotCfgPPO.runner ):
         policy_class_name = 'ActorCriticTocabi'
-        algorithm_class_name = 'PPO'
+        algorithm_class_name = 'PPOTocabi'
         num_steps_per_env = 128 # per iteration
         max_iterations = 10000 # number of policy updates
 
