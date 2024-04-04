@@ -49,8 +49,6 @@ from legged_gym.utils.math import cubic
 ### TODO ###
 # Randomization
 # Perturbation
-# Reset
-# Learning rate, noise curriculum
 
 class Tocabi(LeggedRobot):
     cfg : TOCABIRoughCfg
@@ -197,9 +195,6 @@ class Tocabi(LeggedRobot):
 
         self.lfoot_force = self.contact_forces[:,self.feet_indices[0],0:3]
         self.rfoot_force = self.contact_forces[:,self.feet_indices[1],0:3]
-        self.contact_forces_pre = self.contact_forces.clone()
-        self.lfoot_force_pre = self.contact_forces_pre[:,self.feet_indices[0],0:3]
-        self.rfoot_force_pre = self.contact_forces_pre[:,self.feet_indices[1],0:3]
 
         self.epi_len_log = torch.zeros(self.num_envs,device=self.device,dtype=torch.float)
         self.dt_sim = self.cfg.sim.dt
@@ -279,19 +274,18 @@ class Tocabi(LeggedRobot):
             robot_masses = torch.tensor([prop.mass for prop in robot_props], dtype=torch.float, requires_grad=False, device=self.device)
             self.total_mass[i] = torch.sum(robot_masses)
 
-
     def _compute_torques(self):
         torque_lower =  self.actions[:,0:self.num_actuator_action] * self.motor_constant_scale[:,0:] * self.actuator_high[:self.num_actuator_action]
         torques_upper = self.p_gains[self.num_actuator_action:]*(self.target_data_qpos[:,self.num_actuator_action:] - self.dof_pos[:,self.num_actuator_action:]) + \
                         self.d_gains[self.num_actuator_action:]*(-self.dof_vel[:,self.num_actuator_action:])
 
-        self.action_log[...,0:-1] = self.action_log[...,1:] 
-        self.action_log[...,-1] = torque_lower
+        self.action_log[...,1:] = self.action_log[...,0:-1] 
+        self.action_log[...,0] = torque_lower
         self.simul_len_tensor += 1
         self.simul_len_tensor = self.simul_len_tensor.clamp(max=round(self.max_delay/self.dt_sim), min=0)
         delay_buffer_filled_idx = self.simul_len_tensor > self.delay_idx_tensor
-        delayed_lower_torque = torch.where(delay_buffer_filled_idx.expand(-1,self.num_actuator_action), self.action_log[self.simul_len_tensor.squeeze(-1),:,self.simul_len_tensor.squeeze(-1)], \
-                                            self.action_log[self.delay_idx_tensor.squeeze(-1),:,self.delay_idx_tensor.squeeze(-1)])
+        delayed_lower_torque = torch.where(delay_buffer_filled_idx.expand(-1,self.num_actuator_action), self.action_log[torch.arange(self.num_envs, device=self.device),:,self.delay_idx_tensor.squeeze(-1)], \
+                                            self.action_log[torch.arange(self.num_envs, device=self.device),:,self.simul_len_tensor.squeeze(-1)])
         
         return torch.cat([delayed_lower_torque, torques_upper], dim=1)
 
