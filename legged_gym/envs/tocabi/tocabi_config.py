@@ -45,6 +45,8 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
         
     class sim( LeggedRobotCfg.sim ):
         dt =  0.002
+        class physx( LeggedRobotCfg.sim.physx):
+            contact_collection = 1
 
     class terrain( LeggedRobotCfg.terrain ):
         mesh_type = 'plane'
@@ -143,7 +145,7 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
         decimation = 2
 
     class asset( LeggedRobotCfg.asset ):
-        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/tocabi/xml/dyros_tocabi.xml"
+        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/tocabi/xml/dyros_tocabi_simplified.xml"
         name = "tocabi"
         foot_name = "Foot_Link"
         terminate_after_contacts_on = ["base_link", 
@@ -260,3 +262,7 @@ class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
         load_run = -1 # -1 = last run
         checkpoint = -1 # -1 = last saved model
         resume_path = None # updated from load_run and chkpt
+        # wandb
+        wandb_project = "LeggedGymTocabi"
+        use_wandb = True
+        wandb_interval = 10
