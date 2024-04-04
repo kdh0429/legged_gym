@@ -98,7 +98,7 @@ class Tocabi(LeggedRobot):
 
         # Randomization
         self.motor_constant_scale[env_ids,:] = torch_rand_float(self.cfg.domain_rand.motor_constant_range[0], self.cfg.domain_rand.motor_constant_range[1], (len(env_ids), self.num_actuator_action), device=self.device)
-        self.qpos_bias[env_ids] = torch.rand(len(env_ids), 12, device=self.device, dtype=torch.float)*6.28/100-3.14/100
+        self.qpos_bias[env_ids] = torch.rand(len(env_ids), self.num_actuator_action, device=self.device, dtype=torch.float)*6.28/100-3.14/100
         self.quat_bias[env_ids] = torch.rand(len(env_ids), 3, device=self.device, dtype=torch.float)*6.28/150-3.14/150
         self.init_mocap_data_idx[env_ids] = torch.where(torch.rand(len(env_ids),1, device=self.device, dtype=torch.float) > 0.5, 0, 1800)
 

@@ -34,7 +34,7 @@ from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 
 class TOCABIRoughCfg( LeggedRobotCfg ):
     class env( LeggedRobotCfg.env ):
-        num_envs = 128
+        num_envs = 4096
         num_single_step_obs = 37
         num_obs_hist = 10
         num_obs_skip = 2
@@ -219,6 +219,7 @@ class TOCABIRoughCfg( LeggedRobotCfg ):
 class TOCABIRoughCfgPPO( LeggedRobotCfgPPO ):
     class policy( LeggedRobotCfgPPO.policy):
         init_noise_std = 1/10.0
+        end_noise_std = 1/20.0
         actor_hidden_dims = [256, 256]
         critic_hidden_dims = [256, 256]
         activation = 'relu' # can be elu, relu, selu, crelu, lrelu, tanh, sigmoid
